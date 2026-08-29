@@ -2,8 +2,12 @@ services:
   - type: web
     name: mission-control-twin
     env: node
-    buildCommand: npm install
-    startCommand: node server.js
+    rootDir: ibm8
+    buildCommand: npm ci && npm run build
+    startCommand: npm start
+    healthCheckPath: /api/health
     envVars:
+      - key: NODE_VERSION
+        value: 20
       - key: N2YO_API_KEY
         sync: false
