@@ -1,0 +1,12 @@
+{
+  "name": "mission-control-twin-workspace",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "install:all": "npm --prefix ibm8 ci",
+    "test": "npm --prefix ibm8 test",
+    "build": "npm --prefix ibm8 run build",
+    "check": "npm --prefix ibm8 run check",
+    "start": "npm --prefix ibm8 start"
+  }
+}
