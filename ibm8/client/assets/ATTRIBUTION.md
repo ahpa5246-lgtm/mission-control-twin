@@ -1,7 +1,21 @@
-# Earth texture provenance
+# Visual asset provenance
 
-`earth-texture.svg` is a project-authored, simplified equirectangular illustration created for Mission Control Twin. It uses manually authored continent silhouettes, ocean shading, ice, and cloud-like strokes; it was not copied or traced from a third-party map. It may be used under the same license as this repository.
+## Offline Earth and clouds
 
-This interim asset is **not NASA Blue Marble imagery**, and the project does not claim that it is. Attempts to retrieve the requested official NASA asset from `eoimages.gsfc.nasa.gov` were blocked by the execution environment's HTTP proxy. A future human-reviewed replacement should be downloaded from an official NASA Earth Observatory/Visible Earth page, committed locally, and recorded here with the exact source page, file URL, retrieval date, and applicable NASA media guidance.
+`earth-fallback.svg` is a deterministic project-authored equirectangular illustration created for this repository on 2026-08-29. It is **not NASA imagery**. Its continent silhouettes are deliberately approximate. `earth-clouds.svg` is a deterministic procedural fractal-noise cloud mask created for this repository on 2026-08-29. Both are available under the repository license.
 
-NASA does not endorse Mission Control Twin. NASA, the NASA insignia, International Space Station imagery, and associated identifiers remain subject to NASA's media usage guidelines.
+## Optional NASA Earthdata GIBS imagery
+
+The visualizer accepts an explicitly configured `window.MISSION_EARTH_TEXTURE` only when it is a same-origin `/assets/` path; the production build uses the local fallback and never makes a mandatory third-party request. A future maintainer may download and validate an equirectangular image from the official NASA Earthdata GIBS WMTS service, commit it under `/client/assets/`, and configure that local path.
+
+Research recorded 2026-08-29:
+
+- NASA Earthdata GIBS service capabilities: `https://gibs.earthdata.nasa.gov/wmts/epsg4326/best/1.0.0/WMTSCapabilities.xml`
+- NASA Worldview/GIBS documentation: `https://nasa-gibs.github.io/gibs-api-docs/`
+- NASA media usage guidance: `https://www.nasa.gov/nasa-brand-center/images-and-media/`
+
+NASA content generally is not subject to copyright in the United States, but NASA identifiers, third-party material, people, and commercial use have additional restrictions. NASA does not endorse this project.
+
+## Renderer research
+
+Globe.GL (`vasturiano/globe.gl`, MIT) and its Three.js dependency were evaluated through their official documentation and repository on 2026-08-29. The build environment denied registry and source access (HTTP 403), so no unverifiable package or CDN artifact was introduced. The checked-in renderer remains dependency-free and locally bundled rather than falsely claiming a Globe.GL installation. Upgrade reference: `https://globe.gl/` and `https://github.com/vasturiano/globe.gl`.

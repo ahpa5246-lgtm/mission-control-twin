@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="2048" height="1024" viewBox="0 0 2048 1024">
+<defs><linearGradient id="o" x2="0" y2="1"><stop stop-color="#0b4d78"/><stop offset=".5" stop-color="#082f58"/><stop offset="1" stop-color="#061e40"/></linearGradient><linearGradient id="l" x2=".7" y2="1"><stop stop-color="#9aaa67"/><stop offset=".45" stop-color="#547a43"/><stop offset="1" stop-color="#263f2d"/></linearGradient><filter id="n"><feTurbulence baseFrequency=".035" numOctaves="4" seed="11" result="t"/><feColorMatrix in="t" values=".25 0 0 0 .45 0 .3 0 0 .42 0 0 .2 0 .3 0 0 0 .28 0"/><feBlend in="SourceGraphic" mode="soft-light"/></filter></defs>
+<rect width="2048" height="1024" fill="url(#o)"/><g fill="none" stroke="#4a91ac" stroke-opacity=".18"><path d="M0 256h2048M0 512h2048M0 768h2048"/><path d="M512 0v1024M1024 0v1024M1536 0v1024"/></g>
+<g fill="url(#l)" stroke="#b7c585" stroke-width="3" stroke-opacity=".45" filter="url(#n)">
+<!-- North America, Central America, Greenland --> <path d="M90 190l85-72 125-25 93 37 80 72 82 19 43 72-65 70-70 6-29 69-52 41-45-73-78-37-75-67-74-34z"/><path d="M390 428l45 15 30 67 48 37-19 33-58-33-43-78z"/><path d="M602 82l85-46 90 29 32 80-65 76-107-22-47-56z"/>
+<!-- South America --> <path d="M500 545l80-43 99 20 61 76-21 92-50 75-27 133-62 72-34-109-48-103-47-80z"/>
+<!-- Europe and Asia --> <path d="M905 231l64-49 83 11 68-37 112 28 94-41 158 7 94 51 123-7 139 75 96 78-28 79-103 18-66 61-114-11-77 51-95-57-92 28-72-50-86-18-60-85-89 16-65-45-84 21-63-44z"/>
+<!-- Africa --> <path d="M912 397l97-40 114 35 62 77-20 107-55 65-38 132-75 74-55-113-56-99-25-116z"/>
+<!-- Arabia and India --> <path d="M1160 424l78 12 50 69-56 56-62-35z"/><path d="M1300 424l89 28 55 59-45 112-62-78z"/>
+<!-- SE Asia/Japan --> <path d="M1440 520l70-30 71 38-23 43-65-8zM1692 325l22-55 22 76-28 63z"/>
+<!-- Australia and New Zealand --> <path d="M1570 671l105-60 135 25 75 86-41 98-133 57-117-75z"/><path d="M1900 816l19-58 26 77-30 65z"/>
+<!-- Antarctica --> <path d="M0 931l155-21 142 24 144-18 143 25 155-24 158 21 137-18 154 20 145-17 153 21 138-24 156 18 148-17 160 27v76H0z"/>
+</g><g fill="#f4fbff" opacity=".82"><path d="M0 0h2048v46l-170 15-190-17-205 26-183-18-190 21-217-22-186 21-199-20-178 16-190-20L0 65z"/><path d="M600 83l84-42 77 26 24 61-62 51-88-14z"/></g><g fill="none" stroke="#fff" stroke-opacity=".16" stroke-width="9"><path d="M45 370q180-70 380 20t330 10M830 300q250-70 510 35t510-20M980 660q210-55 390 25t410-5"/></g></svg>
