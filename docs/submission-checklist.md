@@ -20,7 +20,7 @@
 - [ ] Verify the hosted site on desktop and a real mobile viewport.
 - [ ] Capture genuine IBM Bob and IBM SkillsBuild evidence required by the current challenge.
 - [ ] Verify eligibility, team-member names, emails, and consent.
-- [ ] Deliberately select and add a repository license if reuse rights are intended. Do not infer a license from public visibility.
+- [x] MIT license added for project code and original documentation; third-party assets retain their own terms.
 - [ ] Review current NASA/ISS branding guidance and avoid endorsement implications.
 - [ ] Submit the final form and retain confirmation evidence.
 
