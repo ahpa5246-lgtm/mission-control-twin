@@ -75,3 +75,13 @@ test('Earth and cloud textures are rebound to deterministic units before drawing
   assert.match(globe, /image\.onload=\(\)=>\{gl\.activeTexture\(gl\.TEXTURE0\);gl\.bindTexture\(gl\.TEXTURE_2D,texture\)/);
   assert.match(globe, /gl\.activeTexture\(gl\.TEXTURE0\);gl\.bindTexture\(gl\.TEXTURE_2D,texture\);gl\.activeTexture\(gl\.TEXTURE1\);gl\.bindTexture\(gl\.TEXTURE_2D,cloudTexture\);gl\.drawElements/);
 });
+
+
+test('fallback controls remain functional and timestamp is globe-scoped', () => {
+  const root = path.join(__dirname, '..', 'client');
+  const app = fs.readFileSync(path.join(root, 'app.js'), 'utf8');
+  const css = fs.readFileSync(path.join(root, 'styles.css'), 'utf8');
+  assert.match(app, /if\(globe3d\)globe3d\.reset\(\);else\{rotation=0;zoom=1;draw\(\);\}/);
+  assert.match(app, /if\(globe3d\)globe3d\.follow\(\);else if\(lastState\)\{rotation=-lastState\.longitude;draw\(\);\}/);
+  assert.match(css, /\.visual\{position:relative;min-height:/);
+});
