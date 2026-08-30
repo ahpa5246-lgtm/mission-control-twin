@@ -1,25 +1,62 @@
 # Submission evidence checklist
 
-## Repository evidence
+## Automated repository gates
 
-- **Technical implementation:** canonical data flow and degradation contract (`docs/architecture.md`); timeout adapters, TLE propagation, bounded caches, API tests (`ibm8/src`, `ibm8/tests`).
-- **Innovation:** interactive orbit context plus strictly grounded, no-key narration (`ibm8/client`, `docs/prompt.md`).
-- **Feasibility / zero cost:** keyless core, deterministic narration, GitHub-hosted CI, no database (`README.md`, workflow).
-- **Mission Beyond Earth:** live educational ISS twin based on public orbital elements.
-- **Educational impact:** readable units, approximation labels, data-freshness cues, responsive accessible controls, and museum/classroom demo script.
-- **Reliability/security:** no mandatory secrets, server-side optional N2YO key, finite coordinate checks, cancellation, bounded storage, generic client errors.
+- [x] Canonical implementation is documented under `ibm8/`.
+- [x] Installation uses the committed npm lockfile.
+- [x] Tests, syntax checks, production build, and generated-client verification run in CI.
+- [x] Core operation requires no paid API or secret.
+- [x] Timeouts, validation, bounded caches, partial/stale states, and browser fallbacks are tested.
+- [x] Earth/cloud assets are local and their provenance is documented.
+- [x] Unsupported NASA, flight-control, eclipse, AI-provider, and real-time claims are explicitly excluded.
+- [x] Team roles, judge quick start, judging guide, and a two-minute script are documented.
 
-## Human-required before submission
+## Team-owned items before submission
 
-- [ ] Register and verify eligibility/account details.
-- [ ] Complete IBM SkillsBuild activities and retain genuine evidence.
-- [ ] Use IBM Bob as required by current competition rules; capture only genuine session evidence.
-- [ ] Review current challenge rules, judging rubric, licenses, privacy, and NASA/ISS branding guidance.
-- [ ] Deploy through an approved free account if desired; verify environment variables and HTTPS. No deployment has been performed by this repository work.
-- [ ] Record/edit/caption a truthful video of three minutes or less using `docs/demo-script.md`.
-- [ ] Capture desktop/mobile visual evidence and disclose controlled mocks or unavailable integrations.
-- [ ] Complete final submission fields and submit. No competition entry has been submitted.
+- [ ] Add the verified HTTPS demo URL to the GitHub About section and submission form.
+- [ ] Set a concise GitHub description and useful topics such as `ibm`, `iss`, `space`, `webgl`, `digital-twin`, and `education`.
+- [ ] Confirm the exact current portal duration and required fields; keep the video under the portal limit.
+- [ ] Record, caption, and watch the final video after export.
+- [ ] Verify the hosted site on desktop and a real mobile viewport.
+- [ ] Capture genuine IBM Bob and IBM SkillsBuild evidence required by the current challenge.
+- [ ] Verify eligibility, team-member names, emails, and consent.
+- [ ] Deliberately select and add a repository license if reuse rights are intended. Do not infer a license from public visibility.
+- [ ] Review current NASA/ISS branding guidance and avoid endorsement implications.
+- [ ] Submit the final form and retain confirmation evidence.
 
-## Final truthfulness gate
+## Final smoke test
 
-Do not claim real-time data when the UI says stale, full eclipse geometry, authoritative crew status, AI-provider use when the deterministic fallback ran, successful deployment without opening it, IBM course completion without human evidence, or a pass time absent from N2YO.
+Run from a clean checkout using Node.js 20+:
+
+```bash
+npm ci
+npm test
+npm run check
+npm run build
+npm start
+```
+
+Then verify:
+
+- [ ] `/api/health` returns process health without exposing internal errors.
+- [ ] The homepage loads with no browser-console error.
+- [ ] The globe supports drag, wheel, keyboard, Reset, and Follow ISS.
+- [ ] The timestamp and fresh/partial/stale state are legible.
+- [ ] Low-power mode persists after refresh.
+- [ ] Reduced-motion behavior is acceptable.
+- [ ] The Canvas fallback remains understandable when WebGL is unavailable.
+- [ ] No API key, secret, local path, private email, or personal data appears in the repository, UI, video, or browser console.
+
+## Truthfulness gate
+
+Do not claim:
+
+- current/live telemetry when the UI labels the packet stale;
+- certified navigation or operational flight control;
+- full ISS eclipse geometry;
+- authoritative crew/location data when optional sources are unavailable;
+- NASA imagery or NASA endorsement;
+- AI-provider use when the deterministic briefing ran;
+- a visible pass that N2YO did not return;
+- successful public deployment before opening and testing the final HTTPS URL;
+- IBM activity completion without genuine evidence.
