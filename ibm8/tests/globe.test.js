@@ -58,3 +58,20 @@ test('page retains responsive semantic landmarks and honest status regions', () 
   assert.match(css, /@media\(max-width:600px\)/);
   assert.match(css, /prefers-reduced-motion:reduce/);
 });
+
+
+test('low-power control initializes persisted state and updates the live renderer', () => {
+  const root = path.join(__dirname, '..', 'client');
+  const app = fs.readFileSync(path.join(root, 'app.js'), 'utf8');
+  const globe = fs.readFileSync(path.join(root, 'globe.js'), 'utf8');
+  assert.match(app, /initialLowPower=localStorage\.getItem\('mission-low-power'\)==='true'/);
+  assert.match(app, /powerButton\.setAttribute\('aria-pressed',String\(initialLowPower\)\)/);
+  assert.match(app, /globe3d\?\.setLowPower\(enabled\)/);
+  assert.match(globe, /setLowPower\(enabled\)\{lowPower=Boolean\(enabled\);lastFrame=0;scheduleAnimation\(\);render\(\);\}/);
+});
+
+test('Earth and cloud textures are rebound to deterministic units before drawing', () => {
+  const globe = fs.readFileSync(path.join(__dirname, '..', 'client', 'globe.js'), 'utf8');
+  assert.match(globe, /image\.onload=\(\)=>\{gl\.activeTexture\(gl\.TEXTURE0\);gl\.bindTexture\(gl\.TEXTURE_2D,texture\)/);
+  assert.match(globe, /gl\.activeTexture\(gl\.TEXTURE0\);gl\.bindTexture\(gl\.TEXTURE_2D,texture\);gl\.activeTexture\(gl\.TEXTURE1\);gl\.bindTexture\(gl\.TEXTURE_2D,cloudTexture\);gl\.drawElements/);
+});
