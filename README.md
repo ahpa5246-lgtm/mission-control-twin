@@ -124,7 +124,7 @@ GitHub Actions installs from the committed lockfile, runs tests and syntax check
 
 The application source, tests, documentation, and generated browser build are committed. No deployment, competition submission, or IBM coursework evidence is claimed by the repository.
 
-This repository currently has no explicit open-source license. Public visibility permits viewing but does not itself grant reuse rights. The owner must deliberately select and add a license before claiming that third parties may reuse or redistribute the project.
+The project code and original documentation are released under the [MIT License](LICENSE). Third-party assets, imagery, data, trademarks, and service content retain their own terms and attribution requirements; see [ATTRIBUTION.md](ibm8/client/assets/ATTRIBUTION.md).
 
 ## Rollback
 
