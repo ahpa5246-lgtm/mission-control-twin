@@ -1,28 +1,21 @@
 # Mission Control Twin
 
-Mission Control Twin is a zero-cost educational digital twin of the International Space Station, created for the IBM AI Builders Challenge theme **Mission Beyond Earth: Space Exploration**. It turns public orbital elements into a live, understandable mission-control display without pretending that an educational web application is operational flight software.
+Mission Control Twin is a zero-cost educational digital twin of the International Space Station, created for the IBM AI Builders Challenge theme **Mission Beyond Earth: Space Exploration**. It turns public orbital elements into an understandable mission-control experience without presenting an educational application as operational flight software.
 
-## What it does
+## Team
 
-The canonical application is **`ibm8/`**: an Express backend and a dependency-free responsive browser frontend. It propagates a real CelesTrak ISS TLE with `satellite.js`, displays location and inertial speed on an interactive canvas globe, estimates whether the point below the ISS is in daylight, optionally enriches location/crew/pass data, and creates strictly grounded narration. `backend/` is a preserved early prototype and is not used.
+- **Mina** — Mechatronics Engineering Technologies
+- **Hawraa** — Artificial Intelligence
+- **Huda** — Artificial Intelligence
+- **Worood** — Artificial Intelligence
 
-The UI polls every five seconds without overlapping requests, retains the last valid packet, limits the trail to 36 points, supports touch/keyboard navigation and reduced motion, and offers opt-in Web Speech playback. A local, zero-dependency WebGL renderer maps an equirectangular Earth texture onto a lit sphere, while the original Canvas view remains an automatic fallback. Rendering pauses while the tab is hidden. English and Arabic text can coexist through `dir="auto"` and logical CSS properties.
+## Judge quick start
 
-## Architecture and data integrity
-
-Browser → Express `/api/state` → bounded caches → CelesTrak adapter → `satellite.js`. Location and crew are independent best-effort enrichments. Failures produce `meta.degraded`, `meta.partialReasons`, or `meta.stale`; absent values are `null`, never invented. See [architecture](docs/architecture.md) and [API boundaries](docs/apis.md).
-
-Speed is the magnitude of the propagated Earth-centered inertial velocity in km/h, not ground-track speed. “Daylight/night beneath the ISS” uses SunCalc at the sub-satellite point; it is an educational ground-light approximation, **not** full spacecraft eclipse geometry. TLE epochs older than 72 hours are identified as stale.
-
-Narration defaults to a deterministic template and requires no key. It includes only supplied normalized fields. The provider-neutral grounding rules are in [the prompt](docs/prompt.md). No mandatory path uses Gemini, Qwen, N2YO, or a paid service.
-
-## Requirements and reproducible operation
-
-- Node.js 20+
-- npm 10+
+The canonical application is **`ibm8/`**. It requires Node.js 20+ and no API key for its core experience.
 
 ```bash
-cd ibm8
+git clone https://github.com/ahpa5246-lgtm/mission-control-twin.git
+cd mission-control-twin/ibm8
 npm ci
 npm test
 npm run check
@@ -30,55 +23,109 @@ npm run build
 npm start
 ```
 
-Open <http://localhost:3000>. For development, run `npm run dev:server`; edit `client/`, run `npm run build`, and refresh. The checked-in `public/` build makes production startup deterministic. Root convenience commands (`npm test`, `npm run check`, `npm run build`, `npm start`) delegate to `ibm8/`.
+Open <http://localhost:3000>. The team will add the approved hosted-demo URL separately after deployment and HTTPS verification.
+
+For a concise evaluation map, see [the judging guide](docs/judging-guide.md), [two-minute demo script](docs/demo-script.md), and [submission checklist](docs/submission-checklist.md).
+
+## What it does
+
+The application combines an Express backend with a dependency-free responsive browser client. It:
+
+- obtains ISS orbital elements from CelesTrak and propagates them with `satellite.js`;
+- displays latitude, longitude, altitude, inertial speed, and a bounded recent trail;
+- renders an interactive local WebGL globe with an accessible Canvas fallback;
+- labels fresh, partial, degraded, and stale data rather than inventing missing values;
+- estimates daylight at the point beneath the ISS;
+- optionally enriches location, crew, and visible-pass information;
+- produces a strictly grounded deterministic briefing without an AI key.
+
+The interface polls without overlapping requests, retains the last verified packet, supports mouse, touch, and keyboard controls, respects reduced motion, offers a low-power mode, and pauses animation while hidden.
+
+## Architecture and data integrity
+
+Browser → Express `/api/state` → bounded caches → CelesTrak adapter → `satellite.js`.
+
+Location and crew are independent best-effort enrichments. Failures produce `meta.degraded`, `meta.partialReasons`, or `meta.stale`; absent values are `null`, never invented. See [architecture](docs/architecture.md) and [API boundaries](docs/apis.md).
+
+Speed is the magnitude of propagated Earth-centered inertial velocity in km/h, not ground-track speed. “Daylight/night beneath the ISS” is a ground-light approximation, not full spacecraft eclipse geometry. TLE epochs older than 72 hours are identified as stale.
+
+Narration defaults to a deterministic template and includes only normalized supplied fields. The provider-neutral grounding contract is documented in [the prompt](docs/prompt.md). No mandatory path uses Gemini, Qwen, N2YO, or a paid service.
+
+## Reproducible commands
+
+From the repository root:
+
+```bash
+npm ci
+npm test
+npm run check
+npm run build
+npm start
+```
+
+The root commands delegate to `ibm8/`. For server development use `npm run dev:server --prefix ibm8`. Frontend source lives in `ibm8/client/` and the deterministic production build in `ibm8/public/`.
 
 ### Optional environment variables
 
 | Variable | Default | Purpose |
 |---|---:|---|
 | `PORT` | `3000` | HTTP listen port |
-| `N2YO_API_KEY` | unset | Optional future visible-pass lookup |
+| `N2YO_API_KEY` | unset | Optional server-side visible-pass lookup |
 
-A browser served separately can set `window.MISSION_CONTROL_API_URL` before `app.js`; same-origin is the secure default. Never put N2YO keys in frontend code. No AI key is required or currently consumed.
+A separately served browser may set `window.MISSION_CONTROL_API_URL`; same-origin is the secure default. Never place an N2YO key in frontend code. No AI key is currently required or consumed.
 
-## APIs and sources
+## Data and visual sources
 
 - CelesTrak GP/TLE over HTTPS: primary orbital elements.
-- `satellite.js`: SGP4 propagation from that TLE.
+- `satellite.js`: SGP4 propagation.
 - SunCalc: approximate light at the Earth subpoint.
-- BigDataCloud reverse-geocode client: optional, keyless location.
-- Corquaid’s public people-in-space JSON: optional crew mirror; source availability and authority are limitations.
-- N2YO: optional visible passes, called only with a human-provided server environment key.
+- BigDataCloud reverse-geocode client: optional keyless location.
+- Corquaid public people-in-space JSON: optional crew mirror with documented authority limitations.
+- N2YO: optional visible passes, invoked only when a server environment key is configured.
 
-See [full contracts, timeouts, validation, and cache policy](docs/apis.md). The current local geography texture is project-authored and carries no runtime license dependency; its provenance is recorded in [`ibm8/client/assets/ATTRIBUTION.md`](ibm8/client/assets/ATTRIBUTION.md). NASA Blue Marble could not be retrieved in the restricted build environment and is **not** claimed as the source of this interim asset. NASA and ISS names are used descriptively; NASA does not endorse this project. A human replacing the interim texture with NASA imagery must use an official NASA source, preserve its source URL and media guidance, and visually verify the equirectangular mapping before submission.
+The bundled Earth and cloud textures are original project assets, not NASA imagery. Their provenance and the evaluated NASA/Globe.GL upgrade paths are documented in [ATTRIBUTION.md](ibm8/client/assets/ATTRIBUTION.md). NASA and ISS names are used descriptively; NASA does not endorse this project.
 
 ## Tests and CI
 
-`npm test` uses only local fixtures/mocks and covers app import, health, API smoke flow, coordinate boundaries, bounded-cache behavior, cancellation/timeouts, malformed/rate-limited responses, deterministic TLE propagation, partial enrichment, stale retention, and no-key narration. GitHub Actions installs from the lockfile, tests, checks syntax, builds, and verifies a clean generated frontend. Optional integrations need no CI secrets.
+`npm test` uses local fixtures and mocks. Coverage includes:
 
-## Limits and risks
+- app import, health, state, and HTTP smoke behavior;
+- coordinate boundaries and generic error responses;
+- bounded caches, timeouts, malformed and rate-limited upstreams;
+- deterministic TLE propagation, partial enrichment, and stale fallback;
+- narration grounding;
+- bounded trails and local-only texture paths;
+- WebGL initialization/fallback behavior;
+- persisted low-power state and deterministic texture-unit binding;
+- responsive landmarks and reduced-motion support.
 
-- TLE propagation is educational and depends on CelesTrak freshness; it is not certified navigation.
-- If CelesTrak is unreachable at startup, the app propagates a bundled 1 January 2024 snapshot and prominently reports `tle-stale`; this is a resilience demonstration, not current telemetry.
-- The daylight label does not prove that the spacecraft itself is sunlit.
-- Reverse geocoding and crew information are optional and can be absent or delayed.
-- N2YO predictions need a key and are never fabricated when unavailable.
-- The primary globe is a compact local WebGL renderer rather than Three.js; the project-authored map is recognizable but is not yet the requested official NASA Blue Marble asset. Canvas provides a controlled fallback if WebGL or texture loading fails.
-- No external AI provider is enabled in this safe core. Adding one requires output grounding validation, timeout/rate-limit handling, and mocked tests.
+GitHub Actions installs from the committed lockfile, runs tests and syntax checks, builds the static client, and verifies that generated `public/` assets are committed.
+
+## Limits and honest claims
+
+- This is educational software, not certified navigation or flight control.
+- Data freshness depends on CelesTrak. A bundled historical snapshot is visibly marked stale and is never presented as a current position.
+- Daylight below the ISS does not prove whether the spacecraft itself is sunlit.
+- Optional location and crew sources may be delayed or unavailable.
+- Visible passes require an optional N2YO key and are never fabricated.
+- The globe uses original approximate local artwork rather than official NASA Blue Marble imagery.
+- No external generative-AI provider is enabled in the safe core.
 
 ## Troubleshooting
 
-- **`SERVICE_UNAVAILABLE`:** verify outbound HTTPS/DNS; the UI will retain a prior packet when one exists.
-- **Partial data:** inspect `meta.partialReasons`; core orbit remains useful when enrichment fails.
-- **No pass:** configure `N2YO_API_KEY` on the server or accept the explicit unavailable state.
-- **Old frontend:** run `npm run build` after changing `client/`.
-- **Port in use:** set `PORT=3001 npm start`.
-- **WebGL/canvas unavailable:** telemetry and narration still render; the globe area explains its fallback.
+- **`SERVICE_UNAVAILABLE`:** verify outbound HTTPS/DNS; the UI retains a prior packet when available.
+- **Partial data:** inspect `meta.partialReasons`; optional enrichment failure does not discard the orbit.
+- **No visible pass:** configure `N2YO_API_KEY` server-side or use the explicit unavailable state.
+- **Old frontend:** run `npm run build`.
+- **Port in use:** set another port, for example `PORT=3001 npm start`.
+- **WebGL unavailable:** telemetry remains usable through the controlled Canvas fallback.
+
+## Repository status and licensing
+
+The application source, tests, documentation, and generated browser build are committed. No deployment, competition submission, or IBM coursework evidence is claimed by the repository.
+
+This repository currently has no explicit open-source license. Public visibility permits viewing but does not itself grant reuse rights. The owner must deliberately select and add a license before claiming that third parties may reuse or redistribute the project.
 
 ## Rollback
 
-Each roadmap unit is a separate commit. To roll back without rewriting history, use `git revert <commit>` from newest to oldest. The pre-roadmap canonical server is commit `77284d4`; do not reset shared history or merge the prototype into it.
-
-## IBM Bob and human-required submission work
-
-The project is intended to demonstrate how IBM Bob can assist with repository analysis, implementation planning, tests, and iterative code review. This repository does **not** claim that Bob sessions, IBM SkillsBuild coursework, registrations, screenshots, video production, deployment, or the final competition submission have been completed. A human must perform and truthfully document those activities, record the demo, review competition terms, and submit it. See the [submission checklist](docs/submission-checklist.md) and [three-minute demo script](docs/demo-script.md).
+Changes are preserved as normal Git commits. Use `git revert <commit>` to undo a change without rewriting shared history.
