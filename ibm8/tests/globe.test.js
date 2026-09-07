@@ -42,7 +42,7 @@ test('cinematic assets, controls, motion suspension and cleanup are local', () =
   const root = path.join(__dirname, '..', 'client');
   const html = fs.readFileSync(path.join(root, 'index.html'), 'utf8');
   const globe = fs.readFileSync(path.join(root, 'globe.js'), 'utf8');
-  for (const asset of ['earth-fallback.svg', 'earth-observatory-v1.png', 'earth-clouds.svg', 'ATTRIBUTION.md']) assert.equal(fs.existsSync(path.join(root, 'assets', asset)), true);
+  for (const asset of ['earth-fallback.svg', 'earth-observatory-v2.jpg', 'earth-clouds.svg', 'ATTRIBUTION.md']) assert.equal(fs.existsSync(path.join(root, 'assets', asset)), true);
   assert.match(html, /id="follow-iss"/);
   assert.match(html, /id="reset-view"/);
   assert.match(html, /id="power-mode"/);
@@ -72,7 +72,7 @@ test('low-power control initializes persisted state and updates the live rendere
   assert.match(app, /initialLowPower=localStorage\.getItem\('mission-low-power'\)==='true'/);
   assert.match(app, /powerButton\.setAttribute\('aria-pressed',String\(initialLowPower\)\)/);
   assert.match(app, /globe3d\?\.setLowPower\(enabled\)/);
-  assert.match(app, /earth-observatory-v1\.png/);
+  assert.match(app, /earth-observatory-v2\.jpg/);
   assert.match(globe, /ORBIT_LANES/);
   assert.match(globe, /strokeOrbit/);
   assert.match(globe, /setLowPower\(enabled\)\s*\{\s*lowPower\s*=\s*Boolean\(enabled\)/);

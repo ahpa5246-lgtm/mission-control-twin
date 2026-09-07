@@ -3,9 +3,9 @@
 
   const MAX_TRAIL = 36;
   const ORBIT_LANES = [
-    { inclination: 51.6, phase: 0.16, radius: 1.16, color: 'rgba(107, 231, 255, .92)', label: 'ISS · 51.6°' },
-    { inclination: 72, phase: 1.82, radius: 1.22, color: 'rgba(255, 173, 83, .64)', label: 'POLAR WATCH' },
-    { inclination: 34, phase: 3.42, radius: 1.28, color: 'rgba(105, 229, 156, .58)', label: 'LOW ORBIT' },
+    { inclination: 51.6, phase: 0.16, radius: 1.16, color: 'rgba(107, 231, 255, .94)', label: 'ISS · 51.6°', marker: 'ISS' },
+    { inclination: 72, phase: 1.82, radius: 1.22, color: 'rgba(255, 173, 83, .68)', label: 'POLAR REFERENCE', marker: 'POLAR' },
+    { inclination: 34, phase: 3.42, radius: 1.28, color: 'rgba(105, 229, 156, .62)', label: 'EQUATORIAL ARC', marker: 'ARC' },
     { inclination: 98.2, phase: .74, radius: 1.31, color: 'rgba(255, 117, 173, .48)', label: null },
     { inclination: 63.4, phase: 4.31, radius: 1.19, color: 'rgba(169, 137, 255, .5)', label: null },
     { inclination: 17, phase: 5.2, radius: 1.25, color: 'rgba(255, 223, 114, .42)', label: null },
@@ -72,7 +72,7 @@
     if (!gl) throw Error('WebGL is unavailable');
 
     const vs = 'attribute vec3 p;attribute vec2 uv;uniform float yaw;uniform float pitch;uniform float aspect;uniform float scale;varying vec2 vuv;varying vec3 normal;void main(){mat3 ry=mat3(cos(yaw),0.,-sin(yaw),0.,1.,0.,sin(yaw),0.,cos(yaw));mat3 rx=mat3(1.,0.,0.,0.,cos(pitch),sin(pitch),0.,-sin(pitch),cos(pitch));vec3 q=rx*ry*p;normal=q;float depth=1.05-q.z*.11;gl_Position=vec4(q.x*scale/aspect/depth,q.y*scale/depth,q.z*.2,1.);vuv=uv;}';
-    const fs = 'precision mediump float;varying vec2 vuv;varying vec3 normal;uniform sampler2D earth;uniform sampler2D clouds;uniform float cloudShift;void main(){vec3 n=normalize(normal);vec3 light=normalize(vec3(-.64,.52,.74));float sun=dot(n,light);float day=smoothstep(-.22,.22,sun);float rim=pow(1.-max(n.z,0.),2.15);vec3 tex=texture2D(earth,vuv).rgb;float blue=1.-smoothstep(.18,.42,tex.g);float spec=pow(max(dot(reflect(-light,n),vec3(0.,0.,1.)),0.),62.)*blue;float cloud=texture2D(clouds,vec2(fract(vuv.x+cloudShift),vuv.y)).r*.20;vec3 night=tex*(.035+.08*max(sun+.16,0.))+vec3(.05,.085,.13);vec3 daylit=tex*(.38+.82*max(sun,0.))+vec3(spec*.72)+vec3(cloud);vec3 color=mix(night,daylit,day)+vec3(.12,.55,.92)*rim*(.25+.58*day);gl_FragColor=vec4(color,1.);}';
+    const fs = 'precision mediump float;varying vec2 vuv;varying vec3 normal;uniform sampler2D earth;uniform sampler2D clouds;uniform float cloudShift;void main(){vec3 n=normalize(normal);vec3 light=normalize(vec3(-.64,.52,.74));float sun=dot(n,light);float day=smoothstep(-.18,.24,sun);float rim=pow(1.-max(n.z,0.),2.25);vec3 tex=texture2D(earth,vuv).rgb;float ocean=1.-smoothstep(.17,.36,tex.g);float spec=pow(max(dot(reflect(-light,n),vec3(0.,0.,1.)),0.),72.)*ocean;float cloud=texture2D(clouds,vec2(fract(vuv.x+cloudShift),vuv.y)).r*.18;vec3 night=tex*(.018+.06*max(sun+.2,0.))+vec3(.006,.015,.032);vec3 daylit=tex*(.30+.88*max(sun,0.))+vec3(spec*.55)+vec3(cloud);vec3 atmosphere=vec3(.05,.38,.80)*rim*(.12+.42*day);gl_FragColor=vec4(mix(night,daylit,day)+atmosphere,1.);}';
     const prog = program(gl, vs, fs), geo = geometry();
     gl.useProgram(prog);
     const vb = gl.createBuffer();
@@ -146,22 +146,28 @@
       ctx.lineWidth = lane.label === 'ISS · 51.6°' ? 1.7 : 1;
       ctx.strokeStyle = lane.color;
       ctx.setLineDash(lane.label === 'ISS · 51.6°' ? [] : [4, 7]);
-      let drawing = false;
-      ctx.beginPath();
+      let drawing = false, started = false;
       for (let step = 0; step <= 180; step++) {
         const point = position(orbitPoint(lane.inclination, lane.phase + step / 180 * Math.PI * 2), lane.radius);
         if (point.visible) {
-          if (!drawing) ctx.moveTo(point.x, point.y); else ctx.lineTo(point.x, point.y);
+          if (!drawing) { ctx.beginPath(); ctx.moveTo(point.x, point.y); started = true; } else ctx.lineTo(point.x, point.y);
           drawing = true;
-        } else drawing = false;
+        } else if (drawing) { ctx.globalAlpha = .72; ctx.stroke(); drawing = false; }
       }
-      ctx.stroke();
+      if (drawing && started) { ctx.globalAlpha = 1; ctx.stroke(); }
       ctx.setLineDash([]);
       const label = position(orbitPoint(lane.inclination, lane.phase + .78), lane.radius);
       if (lane.label && label.visible && label.x > 10 && label.x < rect.width - 110) {
         ctx.fillStyle = lane.color;
         ctx.font = '600 10px ui-monospace, SFMono-Regular, monospace';
         ctx.fillText(lane.label, label.x + 8, label.y - 8);
+      }
+      const satellite = position(orbitPoint(lane.inclination, lane.phase + 1.9), lane.radius);
+      if (lane.marker && satellite.visible) {
+        ctx.fillStyle = lane.color; ctx.shadowColor = lane.color; ctx.shadowBlur = 9;
+        ctx.beginPath(); ctx.arc(satellite.x, satellite.y, 3, 0, Math.PI * 2); ctx.fill();
+        ctx.shadowBlur = 0; ctx.fillStyle = 'rgba(232,250,255,.9)';
+        ctx.font = '700 8px ui-monospace, SFMono-Regular, monospace'; ctx.fillText(lane.marker, satellite.x + 6, satellite.y - 6);
       }
       ctx.restore();
     }

@@ -9,7 +9,7 @@
   function render(data) {
     lastState = data; trail.push({ lat: data.latitude, lng: data.longitude }); if (trail.length > 36) trail.shift();
     $('latitude').textContent = format(data.latitude); $('longitude').textContent = format(data.longitude);
-    $('altitude').textContent = format(data.altitudeKm, 1); $('speed').textContent = format(data.speedKmh, 0);
+    $('altitude').textContent = format(data.altitudeKm, 1); document.querySelectorAll('[data-duplicate="altitude"]').forEach(node => { node.textContent = format(data.altitudeKm, 1); }); $('speed').textContent = format(data.speedKmh, 0);
     $('light').textContent = data.illumination === 'daylight-below' ? 'Daylight' : data.illumination === 'night-below' ? 'Night' : 'Unavailable';
     $('location').textContent = data.location?.name || 'Unavailable'; $('location-type').textContent = data.location?.type || 'optional enrichment';
     ui.timestamp.textContent = new Date(data.timestamp).toLocaleString();
@@ -31,7 +31,7 @@
   const canvas=$('globe'), ctx=canvas.getContext && canvas.getContext('2d'); let rotation=0, dragging=false, previous=0, zoom=1, globe3d=null;
   const powerButton=$('power-mode'), initialLowPower=localStorage.getItem('mission-low-power')==='true';
   powerButton.setAttribute('aria-pressed',String(initialLowPower)); powerButton.textContent=initialLowPower?'Low power: on':'Low power';
-  try { globe3d=window.MissionGlobe.createGlobe({canvas:$('earth-webgl'),textureUrl:window.MISSION_EARTH_TEXTURE||'/assets/earth-observatory-v1.png',overlay:$('orbit-overlay'),interaction:canvas,container:$('globe-wrap'),marker:$('iss-marker'),fallback:$('globe-fallback'),reducedMotion:matchMedia('(prefers-reduced-motion: reduce)').matches,lowPower:initialLowPower}); }
+  try { globe3d=window.MissionGlobe.createGlobe({canvas:$('earth-webgl'),textureUrl:window.MISSION_EARTH_TEXTURE||'/assets/earth-observatory-v2.jpg',overlay:$('orbit-overlay'),interaction:canvas,container:$('globe-wrap'),marker:$('iss-marker'),fallback:$('globe-fallback'),reducedMotion:matchMedia('(prefers-reduced-motion: reduce)').matches,lowPower:initialLowPower}); }
   catch { $('globe-fallback').hidden=false; }
   function project(lat,lng,cx,cy,r){const phi=lat*Math.PI/180,lambda=(lng+rotation)*Math.PI/180;const visible=Math.cos(phi)*Math.cos(lambda)>0;return {x:cx+r*Math.cos(phi)*Math.sin(lambda),y:cy-r*Math.sin(phi),visible};}
   function draw(){
@@ -66,6 +66,10 @@
   }
   canvas.addEventListener('pointerdown',e=>{dragging=true;previous=e.clientX;canvas.setPointerCapture(e.pointerId)});canvas.addEventListener('pointermove',e=>{if(dragging){rotation+=(e.clientX-previous)*.5;previous=e.clientX;draw()}});canvas.addEventListener('pointerup',()=>dragging=false);canvas.addEventListener('wheel',e=>{e.preventDefault();zoom=Math.max(.7,Math.min(1.25,zoom-e.deltaY*.001));draw()},{passive:false});addEventListener('resize',draw);
   $('reset-view').addEventListener('click',()=>{if(globe3d)globe3d.reset();else{rotation=0;zoom=1;draw();}});$('follow-iss').addEventListener('click',()=>{if(globe3d)globe3d.follow();else if(lastState){rotation=-lastState.longitude;draw();}});powerButton.addEventListener('click',e=>{const enabled=e.currentTarget.getAttribute('aria-pressed')!=='true';e.currentTarget.setAttribute('aria-pressed',String(enabled));localStorage.setItem('mission-low-power',String(enabled));e.currentTarget.textContent=enabled?'Low power: on':'Low power';globe3d?.setLowPower(enabled);});
+  const telemetryPanel=$('telemetry'),telemetryToggle=$('telemetry-toggle'),telemetryClose=$('telemetry-close');
+  function setTelemetryPanel(open){telemetryPanel.classList.toggle('is-open',open);telemetryPanel.setAttribute('aria-hidden',String(!open));telemetryToggle.setAttribute('aria-expanded',String(open));telemetryToggle.innerHTML=open?'CLOSE INSTRUMENTS <span>−</span>':'OPEN INSTRUMENTS <span>+</span>';}
+  telemetryToggle.addEventListener('click',()=>setTelemetryPanel(!telemetryPanel.classList.contains('is-open')));
+  telemetryClose.addEventListener('click',()=>setTelemetryPanel(false));
   $('refresh').addEventListener('click',()=>{if(controller)controller.abort();controller=null;clearTimeout(timer);poll()});
   ui.speak.addEventListener('click',()=>{if(!('speechSynthesis'in window))return;if(speaking){speechSynthesis.cancel();speaking=false;ui.speak.textContent='▶ Read briefing'}else{const utterance=new SpeechSynthesisUtterance(ui.narration.textContent);utterance.onend=()=>{speaking=false;ui.speak.textContent='▶ Read briefing'};speechSynthesis.speak(utterance);speaking=true;ui.speak.textContent='■ Stop briefing'}});
   $('pass-form').addEventListener('submit',async e=>{e.preventDefault();const data=new FormData(e.currentTarget),out=$('pass-result');out.textContent='Checking…';try{const r=await fetch(`${API}/api/visualpass?lat=${encodeURIComponent(data.get('lat'))}&lng=${encodeURIComponent(data.get('lng'))}`),body=await r.json();if(!r.ok)throw Error(body.error?.message);if(!body.available)out.textContent='Visible-pass lookup is unavailable because the optional N2YO key is not configured.';else if(body.passes.length&&body.passes[0].startUTC)out.textContent=`Next predicted visible pass: ${new Date(body.passes[0].startUTC*1000).toLocaleString()}`;else out.textContent='No valid future visible pass was returned.'}catch(error){out.textContent=error.message||'Visible-pass lookup failed.'}});
