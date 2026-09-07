@@ -31,7 +31,7 @@
   const canvas=$('globe'), ctx=canvas.getContext && canvas.getContext('2d'); let rotation=0, dragging=false, previous=0, zoom=1, globe3d=null;
   const powerButton=$('power-mode'), initialLowPower=localStorage.getItem('mission-low-power')==='true';
   powerButton.setAttribute('aria-pressed',String(initialLowPower)); powerButton.textContent=initialLowPower?'Low power: on':'Low power';
-  try { globe3d=window.MissionGlobe.createGlobe({canvas:$('earth-webgl'),textureUrl:window.MISSION_EARTH_TEXTURE||'/assets/earth-fallback.svg',overlay:$('orbit-overlay'),interaction:canvas,container:$('globe-wrap'),marker:$('iss-marker'),fallback:$('globe-fallback'),reducedMotion:matchMedia('(prefers-reduced-motion: reduce)').matches,lowPower:initialLowPower}); }
+  try { globe3d=window.MissionGlobe.createGlobe({canvas:$('earth-webgl'),textureUrl:window.MISSION_EARTH_TEXTURE||'/assets/earth-observatory-v1.png',overlay:$('orbit-overlay'),interaction:canvas,container:$('globe-wrap'),marker:$('iss-marker'),fallback:$('globe-fallback'),reducedMotion:matchMedia('(prefers-reduced-motion: reduce)').matches,lowPower:initialLowPower}); }
   catch { $('globe-fallback').hidden=false; }
   function project(lat,lng,cx,cy,r){const phi=lat*Math.PI/180,lambda=(lng+rotation)*Math.PI/180;const visible=Math.cos(phi)*Math.cos(lambda)>0;return {x:cx+r*Math.cos(phi)*Math.sin(lambda),y:cy-r*Math.sin(phi),visible};}
   function draw(){
