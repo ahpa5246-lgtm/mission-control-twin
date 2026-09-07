@@ -34,7 +34,36 @@
   try { globe3d=window.MissionGlobe.createGlobe({canvas:$('earth-webgl'),textureUrl:window.MISSION_EARTH_TEXTURE||'/assets/earth-fallback.svg',overlay:$('orbit-overlay'),interaction:canvas,container:$('globe-wrap'),marker:$('iss-marker'),fallback:$('globe-fallback'),reducedMotion:matchMedia('(prefers-reduced-motion: reduce)').matches,lowPower:initialLowPower}); }
   catch { $('globe-fallback').hidden=false; }
   function project(lat,lng,cx,cy,r){const phi=lat*Math.PI/180,lambda=(lng+rotation)*Math.PI/180;const visible=Math.cos(phi)*Math.cos(lambda)>0;return {x:cx+r*Math.cos(phi)*Math.sin(lambda),y:cy-r*Math.sin(phi),visible};}
-  function draw(){if(!ctx){$('globe-fallback').hidden=false;return}const dpr=Math.min(devicePixelRatio||1,2),rect=canvas.getBoundingClientRect();canvas.width=rect.width*dpr;canvas.height=rect.height*dpr;ctx.scale(dpr,dpr);const w=rect.width,h=rect.height,cx=w/2,cy=h/2,r=Math.min(w,h)*.37*zoom;ctx.clearRect(0,0,w,h);const g=ctx.createRadialGradient(cx-r*.35,cy-r*.35,r*.05,cx,cy,r);g.addColorStop(0,'#287195');g.addColorStop(.45,'#103e5d');g.addColorStop(1,'#06131f');ctx.fillStyle=g;ctx.beginPath();ctx.arc(cx,cy,r,0,Math.PI*2);ctx.fill();ctx.strokeStyle='#3ec9db55';ctx.lineWidth=1;for(let lat=-60;lat<=60;lat+=30){ctx.beginPath();for(let lng=-90;lng<=90;lng+=3){const p=project(lat,lng-rotation,cx,cy,r);lng===-90?ctx.moveTo(p.x,p.y):ctx.lineTo(p.x,p.y)}ctx.stroke()}ctx.save();ctx.beginPath();ctx.arc(cx,cy,r,0,Math.PI*2);ctx.clip();trail.forEach((point,i)=>{const p=project(point.lat,point.lng,cx,cy,r);if(p.visible){ctx.fillStyle=`rgba(54,215,232,${(i+1)/trail.length*.5})`;ctx.beginPath();ctx.arc(p.x,p.y,2,0,7);ctx.fill()}});if(lastState){const p=project(lastState.latitude,lastState.longitude,cx,cy,r);if(p.visible){ctx.fillStyle='#fff';ctx.shadowColor='#36d7e8';ctx.shadowBlur=18;ctx.beginPath();ctx.arc(p.x,p.y,6,0,7);ctx.fill();ctx.font='700 11px monospace';ctx.fillText('ISS',p.x+12,p.y+3)}}ctx.restore()}
+  function draw(){
+    if(!ctx){$('globe-fallback').hidden=false;return}
+    if(globe3d) return;
+    const dpr=Math.min(devicePixelRatio||1,2),rect=canvas.getBoundingClientRect();
+    canvas.width=Math.max(1,Math.floor(rect.width*dpr));canvas.height=Math.max(1,Math.floor(rect.height*dpr));
+    ctx.setTransform(dpr,0,0,dpr,0,0);
+    const w=rect.width,h=rect.height,cx=w/2,cy=h/2,r=Math.min(w,h)*.37*zoom;
+    ctx.clearRect(0,0,w,h);
+    const atmosphere=ctx.createRadialGradient(cx-r*.28,cy-r*.42,r*.08,cx,cy,r*1.18);
+    atmosphere.addColorStop(0,'rgba(54,177,220,.72)');atmosphere.addColorStop(.52,'rgba(12,61,98,.92)');atmosphere.addColorStop(.84,'rgba(4,18,34,.98)');atmosphere.addColorStop(1,'rgba(16,126,176,0)');
+    ctx.fillStyle=atmosphere;ctx.beginPath();ctx.arc(cx,cy,r*1.15,0,Math.PI*2);ctx.fill();
+    ctx.save();ctx.beginPath();ctx.arc(cx,cy,r,0,Math.PI*2);ctx.clip();
+    const sea=ctx.createLinearGradient(cx-r,cy-r,cx+r,cy+r);sea.addColorStop(0,'#1c6d96');sea.addColorStop(.48,'#0c3c61');sea.addColorStop(1,'#04131f');
+    ctx.fillStyle=sea;ctx.fillRect(cx-r,cy-r,r*2,r*2);
+    for(let lat=-78;lat<=78;lat+=6){for(let lng=-174;lng<=174;lng+=6){
+      const phi=lat*Math.PI/180,lambda=(lng+rotation)*Math.PI/180;
+      if(Math.cos(phi)*Math.cos(lambda)<=0) continue;
+      const texture=Math.sin(phi*4.7+lambda*2.1)+Math.cos(lambda*3.6-phi*2.4)+Math.sin((phi+lambda)*7);
+      const p=project(lat,lng,cx,cy,r),next=project(lat+5.8,lng+5.8,cx,cy,r);
+      if(texture>1.18){ctx.fillStyle=texture>1.9?'#9ac69a':'#487f72';ctx.globalAlpha=.28+Math.min(.26,(texture-1.18)*.18);ctx.fillRect(p.x,p.y,Math.max(1,next.x-p.x+1),Math.max(1,Math.abs(next.y-p.y)+1));}
+      else if(texture<-1.5&&lat<-50){ctx.fillStyle='#d9f5ff';ctx.globalAlpha=.25;ctx.fillRect(p.x,p.y,3,3);}
+    }}
+    ctx.globalAlpha=1;ctx.strokeStyle='rgba(147,231,245,.22)';ctx.lineWidth=.75;
+    for(let lat=-60;lat<=60;lat+=30){ctx.beginPath();for(let lng=-90;lng<=90;lng+=3){const p=project(lat,lng-rotation,cx,cy,r);lng===-90?ctx.moveTo(p.x,p.y):ctx.lineTo(p.x,p.y)}ctx.stroke();}
+    for(let lng=-60;lng<=60;lng+=30){ctx.beginPath();for(let lat=-86;lat<=86;lat+=3){const p=project(lat,lng-rotation,cx,cy,r);lat===-86?ctx.moveTo(p.x,p.y):ctx.lineTo(p.x,p.y)}ctx.stroke();}
+    ctx.strokeStyle='rgba(95,230,245,.28)';ctx.setLineDash([5,7]);ctx.beginPath();ctx.ellipse(cx,cy,r*1.13,r*.42,-.22,0,Math.PI*2);ctx.stroke();ctx.setLineDash([]);
+    trail.forEach((point,i)=>{const p=project(point.lat,point.lng,cx,cy,r);if(p.visible){ctx.fillStyle=`rgba(142,245,255,${.1+(i+1)/Math.max(trail.length,1)*.62})`;ctx.beginPath();ctx.arc(p.x,p.y,1.2+(i/trail.length)*1.4,0,Math.PI*2);ctx.fill();}});
+    if(lastState){const p=project(lastState.latitude,lastState.longitude,cx,cy,r);if(p.visible){ctx.fillStyle='#ffffff';ctx.shadowColor='#4de8ff';ctx.shadowBlur=22;ctx.beginPath();ctx.arc(p.x,p.y,5.5,0,Math.PI*2);ctx.fill();ctx.shadowBlur=0;ctx.fillStyle='#dffaff';ctx.font='700 10px ui-monospace,monospace';ctx.letterSpacing='1px';ctx.fillText('ISS',p.x+13,p.y+4);}}
+    ctx.restore();
+  }
   canvas.addEventListener('pointerdown',e=>{dragging=true;previous=e.clientX;canvas.setPointerCapture(e.pointerId)});canvas.addEventListener('pointermove',e=>{if(dragging){rotation+=(e.clientX-previous)*.5;previous=e.clientX;draw()}});canvas.addEventListener('pointerup',()=>dragging=false);canvas.addEventListener('wheel',e=>{e.preventDefault();zoom=Math.max(.7,Math.min(1.25,zoom-e.deltaY*.001));draw()},{passive:false});addEventListener('resize',draw);
   $('reset-view').addEventListener('click',()=>{if(globe3d)globe3d.reset();else{rotation=0;zoom=1;draw();}});$('follow-iss').addEventListener('click',()=>{if(globe3d)globe3d.follow();else if(lastState){rotation=-lastState.longitude;draw();}});powerButton.addEventListener('click',e=>{const enabled=e.currentTarget.getAttribute('aria-pressed')!=='true';e.currentTarget.setAttribute('aria-pressed',String(enabled));localStorage.setItem('mission-low-power',String(enabled));e.currentTarget.textContent=enabled?'Low power: on':'Low power';globe3d?.setLowPower(enabled);});
   $('refresh').addEventListener('click',()=>{if(controller)controller.abort();controller=null;clearTimeout(timer);poll()});
