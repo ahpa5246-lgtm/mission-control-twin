@@ -26,7 +26,7 @@ test('built page preserves accessible fallback and has no runtime CDN dependency
   const root = path.join(__dirname, '..', 'client');
   const html = fs.readFileSync(path.join(root, 'index.html'), 'utf8');
   const globe = fs.readFileSync(path.join(root, 'globe.js'), 'utf8');
-  assert.match(html, /role="status">3D Earth unavailable/);
+  assert.match(html, /role="status"><strong>ORBIT SKETCH MODE<\\/strong>/);
   assert.match(html, /aria-label="Interactive globe/);
   assert.match(html, /src="\/globe\.js"/);
   assert.doesNotMatch(`${html}\n${globe}`, /https?:\/\//);
