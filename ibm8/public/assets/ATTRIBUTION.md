@@ -4,13 +4,15 @@
 
 `earth-fallback.svg` is an original deterministic equirectangular illustration created for this repository on 2026-08-29. It is **not NASA imagery** and its continent silhouettes are deliberately approximate.
 
+`earth-observatory-v2.jpg` is a locally bundled compressed render of the original Mission Control Twin generative texture created on 2026-09-07. It is a fictional visual material for an educational interface, not satellite data or NASA imagery, and contains no NASA marks or source assets.
+
 `earth-clouds.svg` is an original deterministic procedural cloud mask created for this repository on 2026-08-29.
 
 The repository currently has no explicit open-source license. These files may be viewed with the public repository, but no separate permission to reuse or redistribute them is asserted until the owner deliberately adds a license. Public visibility alone is not described as a reuse license.
 
 ## Optional NASA Earthdata GIBS imagery
 
-The renderer accepts an explicitly configured `window.MISSION_EARTH_TEXTURE` only when it is a same-origin `/assets/` path. The production build uses the local fallback and makes no mandatory third-party texture request.
+The renderer accepts an explicitly configured `window.MISSION_EARTH_TEXTURE` only when it is a same-origin `/assets/` path. The production build uses `earth-observatory-v2.jpg` and makes no mandatory third-party texture request.
 
 A future maintainer may download and validate an equirectangular image from an official NASA source, commit it locally, preserve the exact source and retrieval date, and visually verify the mapping before use.
 
