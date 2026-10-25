@@ -1,5 +1,33 @@
 # Mission Control Twin
 
+## Download, setup and project overview
+
+An educational ISS digital twin with resilient telemetry adapters.
+
+Orbital propagation; local globe; stale-state disclosure; enrichment fallbacks; deterministic narration.
+
+![Project workflow illustration](docs/project-overview.svg)
+
+[Download source ZIP](https://github.com/ahpa5246-lgtm/mission-control-twin/archive/refs/heads/main.zip) · [Changes and branches](https://github.com/ahpa5246-lgtm/mission-control-twin/branches) · [Verification notes](docs/QUALITY_REVIEW.md)
+
+The ZIP contains source code. Installation steps and external runtime requirements are listed below.
+
+```bash
+git clone https://github.com/ahpa5246-lgtm/mission-control-twin.git
+cd mission-control-twin
+```
+
+From the repository directory:
+
+```text
+npm run install:all
+npm test
+npm start
+```
+
+The diagram is a project illustration. Test results and runtime limitations are recorded in [the review](docs/QUALITY_REVIEW.md); it is not a production-readiness certification.
+
+
 Mission Control Twin is a zero-cost educational digital twin of the International Space Station, created for the IBM AI Builders Challenge theme **Mission Beyond Earth: Space Exploration**. It turns public orbital elements into an understandable mission-control experience without presenting an educational application as operational flight software.
 
 ## Team
